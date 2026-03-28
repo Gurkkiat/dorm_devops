@@ -77,13 +77,13 @@ terraform destroy -auto-approve
 
 1. เข้าไปที่ website
 2. กดเข้าสู่ระบบ
-Tenent
+- Tenent
     username : nattapon_tenant
     password : 123123123
-Manager
+- Manager
     username : nattapon_manager
     password : 123
-Owner
+- Owner
     username : nattapon_owner
     password : 123
 3. กรอกข้อมูล
