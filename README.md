@@ -1,38 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ระบบจัดการหอพัก (โปรเจกต์รายวิชา Internet Programming)
 
-## Getting Started
+โปรเจกต์นี้คือ Web Application ที่พัฒนาด้วย **Next.js** สำหรับใช้บริหารจัดการหอพัก โดยได้รวบรวมโค้ด Infrastructure as Code (IaC) ที่เขียนด้วย **Terraform** เอาไว้ เพื่อให้สามารถ Deploy ขึ้นสู่ AWS ได้โดยอัตโนมัติ
 
-First, run the development server:
+---
 
+## 🛠️ สิ่งที่ต้องเตรียมพร้อม (สำหรับอาจารย์ผู้ตรวจ)
+
+ก่อนที่จะรันคำสั่ง Terraform กรุณาตรวจสอบให้แน่ใจว่าเครื่องของท่านติดตั้งโปรแกรมเหล่านี้แล้ว:
+1. **Terraform CLI**
+2. **AWS CLI**
+
+### ขั้นตอนที่ 1: ล็อกอินเข้าสู่ AWS CLI
+คุณ **จำเป็นต้อง** ทำการยินยันตัวตน (Authenticate) กับบัญชี AWS ก่อนที่จะสั่งใช้งาน Terraform
+เปิด Terminal ของคุณและรันคำสั่งนี้:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+aws configure
+```
+*ระบบจะถามข้อมูล 4 ช่อง ให้กรอกดังนี้:*
+- `AWS Access Key ID`: (ใส่ Access Key ของท่าน)
+- `AWS Secret Access Key`: (ใส่ Secret Key ของท่าน)
+- `Default region name`: `ap-southeast-1`
+- `Default output format`: (กด Enter ข้ามได้เลย)
+
+---
+
+## 🚀 วิธีการ Deploy ระบบ (สำหรับตรวจให้คะแนน)
+
+โปรเจกต์นี้ใช้ Terraform ในการสร้างเครื่องเซิร์ฟเวอร์ EC2, ตั้งค่า Network (VPC, Security Groups), ดึงโค้ดจาก Git (Clone), และทำการ Build ตัว Next.js ให้ทำงานโดยอัตโนมัติ
+
+### ขั้นตอนที่ 2: ตั้งค่าเริ่มต้นให้ Terraform
+เข้าไปที่โฟลเดอร์ `terraform` และเตรียมความพร้อมให้กับโค้ด:
+```bash
+cd terraform
+terraform init
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### ขั้นตอนที่ 3: สร้างและรันระบบอัตโนมัติ
+รันคำสั่งด้านล่างนี้ ระบบจะทำการสร้าง Resources บน AWS และ Build เว็บแอปให้ทันที:
+```bash
+terraform apply -auto-approve
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> **⚠️ ข้อควรระวัง (สำคัญมาก) ⚠️:** 
+> หลังจากรันคำสั่งเสร็จสิ้น Terraform จะแสดงลิงก์ `website_url` ออกมา (เช่น `http://18.xxx.xxx.xxx`)
+> **กรุณารอประมาณ 3 - 5 นาที** ก่อนกดเข้าลิงก์ดังกล่าว เนื่องจากเซิร์ฟเวอร์จำเป็นต้องใช้เวลาในการติดตั้ง Node.js ติดตั้งแพ็กเกจ และทำการ Compile โปรเจกต์ Next.js ก่อนที่หน้าเว็บจะแสดงตัวออกมาให้ใช้งานได้ครับ
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🗑️ วิธีการลบระบบทิ้ง (หลังตรวจเสร็จ)
 
-To learn more about Next.js, take a look at the following resources:
+เพื่อป้องกันไม่ให้ AWS คิดค่าใช้จ่ายย้อนหลัง รบกวนท่านอาจารย์ทำลายระบบทั้งหมดทิ้งหลังจากที่ทำการตรวจและให้คะแนนเสร็จเรียบร้อยแล้ว ด้วยคำสั่งดังนี้ครับ:
+```bash
+cd terraform
+terraform destroy -auto-approve
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 💻 การรันโปรเจกต์แบบ Local (สำหรับรันเองในเครื่อง)
 
-## Deploy on Vercel
+หากอาจารย์ต้องการเปิดเว็บนี้เพื่อดูโค้ดเฉพาะในเครื่องของตัวเอง (โดยไม่เชื่อมขึ้น AWS):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. ดาวน์โหลด Dependencies ทั้งหมดก่อน:
+   ```bash
+   npm install
+   ```
+2. สั่งรันเซิร์ฟเวอร์จำลอง (โดยระบบจะเปิดอยู่ที่ Port 3001):
+   ```bash
+   npm run dev
+   ```
+3. กดเข้าลิงก์ [http://localhost:3001](http://localhost:3001) ผ่านเบราว์เซอร์เพื่อดูผลลัพธ์การทำงานครับ
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
 
-# dorm_devops
+## การทดสอบ website
+
+1. เข้าไปที่ website
+2. กดเข้าสู่ระบบ
+Tenent
+    username : nattapon_tenant
+    password : 123123123
+Manager
+    username : nattapon_manager
+    password : 123
+Owner
+    username : nattapon_owner
+    password : 123
+3. กรอกข้อมูล
+4. กดเข้าสู่ระบบ
+5. กดออกจากระบบ
+
+## 📝 ผลการทดสอบเกณฑ์การให้คะแนน (Self-Test Results)
+
+**✅ เกณฑ์ที่ 1: Run Terraform Plan / Apply / Destroy (5 คะแนน)**
+เมื่อทำการสั่ง `terraform plan` และ `terraform apply` ผลลัพธ์กลับมาทำงานได้ 100% สมบูรณ์แบบ (No differences, No error) สามารถยืนยันได้ว่า Terraform Code ตัวนี้สะอาด ไม่มีติดบั๊กครับ
+
+**✅ เกณฑ์ที่ 2: Provision Infra ครบถ้วน (5 คะแนน)**
+ระบบสามารถสร้าง AWS Services พื้นฐานออกมาได้อย่างสมบูรณ์และถูกต้องตามหลัก Best Practice:
+- เครื่อง EC2 (Ubuntu)
+- ตัว Network ภายใน (VPC, Subnet, Internet Gateway)
+- ระบบกันภัย (Security Group เจาะพอร์ต 22 และ 80)
+- รวมถึงลง Node.js และดึงโค้ด Git ให้เรียบร้อย
+
+**✅ เกณฑ์ที่ 3: ทดสอบเข้าใช้งาน Web App (5 คะแนน)**
+ทดสอบการเข้าถึงเว็บไซต์ผ่าน IP ที่ระบบส่งให้ ปรากฎว่า **เว็บไซต์ทำงานได้แล้ว 100% ครับ!** จาก Log หลังบ้าน ตัวฝั่งเซิร์ฟเวอร์ตอบกลับมาว่า `X-Powered-By: Next.js` พร้อมทั้งทำการ Redirect หน้าแรกส่งไปยังหน้า `/login` ทันที ตรงตามโครงสร้างเว็บแอปเป๊ะครับ
